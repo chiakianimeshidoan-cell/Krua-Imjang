@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ครัวอิ่มจัง สั่งล่วงหน้า</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Mali:wght@500;600;700&family=Noto+Sans+Thai:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ====== สีและธีม (แก้สีร้านได้ที่นี่) ====== */
+:root{
+  --bg:#F4F8FD; --surface:#FFFFFF; --ink:#1B2A4A; --muted:#5E6E8C; --line:#E2EAF5;
+  --primary:#2F6FED; --primary-ink:#FFFFFF; --primary-soft:#E6EFFF;
+  --pink:#FF8FA3; --pink-soft:#FFE3E9; --pink-ink:#B4234A; --danger:#D64545;
+  --steam:#C9DBF5;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F1726; --surface:#18233A; --ink:#E8EEF9; --muted:#9FB0CC; --line:#26344F;
+    --primary:#5B93FF; --primary-ink:#0F1726; --primary-soft:#1E2D4B;
+    --pink-soft:#3A2230; --pink-ink:#FFB3C2; --danger:#FF7A7A; --steam:#4A6694;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F1726; --surface:#18233A; --ink:#E8EEF9; --muted:#9FB0CC; --line:#26344F;
+  --primary:#5B93FF; --primary-ink:#0F1726; --primary-soft:#1E2D4B;
+  --pink-soft:#3A2230; --pink-ink:#FFB3C2; --danger:#FF7A7A; --steam:#4A6694;
+}
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:'Noto Sans Thai','Sarabun','Leelawadee UI',Tahoma,sans-serif;font-size:16px;line-height:1.6}
+.display{font-family:'Mali','Noto Sans Thai','Leelawadee UI',Tahoma,sans-serif}
+img,svg{max-width:100%}
+button,input,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--primary);outline-offset:2px;border-radius:10px}
+[hidden]{display:none!important}
+
+.app{max-width:480px;margin:0 auto;padding:16px 18px 120px}
+
+/* ---------- สติกเกอร์: ขอบขาวรอบรูปแบบสติกเกอร์ ---------- */
+.sticker{filter:drop-shadow(3px 0 0 #fff) drop-shadow(-3px 0 0 #fff) drop-shadow(0 3px 0 #fff) drop-shadow(0 -3px 0 #fff) drop-shadow(0 6px 8px rgba(27,42,74,.18))}
+
+/* ---------- Hero ---------- */
+.hero{background:var(--primary-soft);border-radius:32px;padding:24px 20px 6px;position:relative;overflow:hidden}
+.hero h1{font-size:32px;line-height:1.2;margin:0 0 6px;font-weight:700}
+.hero p{margin:0;color:var(--muted);max-width:30ch}
+.hero svg{display:block;width:100%;height:auto;margin-top:4px}
+.steam path{transform-box:fill-box;animation:rise 3.2s ease-in-out infinite}
+.steam path:nth-child(2){animation-delay:1s}
+.steam path:nth-child(3){animation-delay:2s}
+@keyframes rise{0%{transform:translateY(8px);opacity:0}35%{opacity:.9}100%{transform:translateY(-12px);opacity:0}}
+
+.clock{display:flex;gap:12px;align-items:center;background:var(--surface);border-radius:18px;
+  padding:12px 16px;margin:14px 0 0;font-weight:500}
+.clock svg{flex:none}
+.clock.closed{color:var(--muted)}
+
+/* ---------- เมนู ---------- */
+h2{font-size:22px;margin:28px 0 4px;font-weight:700}
+.sub{margin:0 0 6px;color:var(--muted);font-size:14px}
+.item{display:grid;grid-template-columns:92px 1fr auto;gap:14px;align-items:center;padding:16px 0;border-bottom:1px solid var(--line)}
+.item:last-child{border-bottom:0}
+.pic{width:92px;height:92px;border-radius:24px;background:var(--primary-soft);display:grid;place-items:center}
+.pic svg{width:70px;height:70px}
+.name{font-weight:600;line-height:1.35}
+.tag{display:inline-block;font-size:12px;line-height:1.6;padding:0 8px;border-radius:999px;background:var(--pink-soft);color:var(--pink-ink);margin-left:6px;vertical-align:2px;font-weight:500}
+.desc{color:var(--muted);font-size:14px;margin:2px 0 4px}
+.price{font-size:18px;font-weight:700}
+.add{width:44px;height:44px;border-radius:14px;border:0;background:var(--primary);color:var(--primary-ink);font-size:26px;line-height:1;cursor:pointer}
+.stepper{display:flex;align-items:center;gap:4px;background:var(--primary-soft);border-radius:14px;padding:4px}
+.stepper button{width:36px;height:36px;border-radius:10px;border:0;background:var(--surface);color:var(--primary);font-size:20px;font-weight:700;cursor:pointer;line-height:1}
+.stepper output{min-width:24px;text-align:center;font-weight:600}
+
+.pic{position:relative}
+.pic img{width:100%;height:100%;object-fit:cover;border-radius:24px;display:block}
+.pic .badge{position:absolute;right:-8px;bottom:-8px;width:40px;height:40px}
+.pic .badge svg{width:40px;height:40px}
+.item.is-soon .pic{opacity:.75}
+.soon{display:inline-block;font-size:13px;padding:6px 10px;border-radius:12px;background:var(--pink-soft);color:var(--pink-ink);font-weight:500;white-space:nowrap}
+
+/* ---------- รูปจริง ---------- */
+.hero-photo{position:relative;margin:16px 0 22px}
+.hero-photo img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:24px;display:block}
+.hero-stickers{position:absolute;right:-8px;bottom:-18px;width:128px}
+.hero-stickers svg{width:128px;height:auto}
+.gallery{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;margin:8px -18px 0;padding:4px 18px 10px}
+.gallery figure{flex:0 0 72%;margin:0;scroll-snap-align:start}
+.gallery img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:20px;display:block}
+.gallery figcaption{font-size:13px;color:var(--muted);margin-top:4px}
+.field select{width:100%;padding:12px 14px;border-radius:14px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink);font:inherit}
+.field select[aria-invalid="true"]{border-color:var(--danger)}
+.alt{background:var(--surface);border-radius:18px;padding:14px 16px;margin-top:10px}
+.alt p{margin:2px 0 0;color:var(--muted);font-size:15px}
+.alt .row{display:flex;gap:8px;margin-top:10px}
+.alt .row .btn{margin-top:0}
+.ono{margin:10px 0 0;font-size:15px}
+
+/* ---------- รีวิว ---------- */
+.reviews{display:grid;gap:10px;margin-top:8px}
+.review{background:var(--surface);border-radius:18px;padding:14px 16px}
+.review .stars{color:#F5B301;letter-spacing:2px}
+.review p{margin:4px 0}
+.review .who{color:var(--muted);font-size:14px}
+.empty{background:var(--surface);border-radius:22px;padding:18px;text-align:center;margin-top:8px}
+.empty svg{width:90px;height:auto}
+.empty p{color:var(--muted);margin:6px auto 0;max-width:34ch;font-size:15px}
+
+/* ---------- คำขอบคุณจากครอบครัว ---------- */
+.thanks{margin:28px 0 0;background:var(--primary-soft);border-radius:28px;padding:20px;text-align:center}
+.thanks svg{width:120px;height:auto}
+.thanks .msg{margin:8px auto 0;max-width:30ch;font-size:18px;line-height:1.5}
+.thanks .sign{margin:6px 0 0;font-size:14px;color:var(--muted)}
+
+/* ---------- วิธีสั่ง ---------- */
+.steps{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:10px}
+.steps li{display:flex;gap:12px;align-items:center;background:var(--surface);border-radius:16px;padding:10px 14px;font-size:15px}
+.steps b{flex:none;width:28px;height:28px;border-radius:50%;background:var(--primary-soft);color:var(--primary);display:grid;place-items:center;font-size:14px}
+.foot{margin:24px 0 0;color:var(--muted);font-size:13px;text-align:center}
+
+/* ---------- แถบตะกร้า ---------- */
+.cartbar{position:fixed;left:0;right:0;bottom:0;display:flex;justify-content:center;
+  padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));pointer-events:none;z-index:10}
+.cartbar button{pointer-events:auto;width:100%;max-width:448px;display:flex;justify-content:space-between;align-items:center;gap:12px;
+  padding:14px 20px;border:0;border-radius:22px;background:var(--primary);color:var(--primary-ink);font-weight:600;cursor:pointer;
+  box-shadow:0 12px 28px rgba(47,111,237,.35)}
+.cartbar .count{background:rgba(255,255,255,.22);border-radius:999px;padding:0 10px;margin-right:8px}
+
+/* ---------- หน้าต่างสั่งซื้อ ---------- */
+.overlay{position:fixed;inset:0;background:rgba(15,23,38,.45);display:flex;align-items:flex-end;justify-content:center;z-index:20}
+.sheet{background:var(--surface);width:100%;max-width:480px;max-height:92%;overflow:auto;border-radius:28px 28px 0 0;
+  padding:8px 20px calc(24px + env(safe-area-inset-bottom,0px));animation:up .25s ease-out}
+@keyframes up{from{transform:translateY(24px);opacity:.4}to{transform:none;opacity:1}}
+.grab{width:44px;height:5px;border-radius:9px;background:var(--line);margin:6px auto 10px}
+.sheet-head{display:flex;justify-content:space-between;align-items:center}
+.sheet h3{font-size:22px;margin:0;font-weight:700}
+.close{width:40px;height:40px;border-radius:12px;border:0;background:var(--bg);font-size:22px;cursor:pointer;line-height:1}
+.lines{list-style:none;padding:0;margin:12px 0;border-radius:18px;background:var(--bg);padding:6px 14px}
+.lines li{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px dashed var(--line)}
+.lines li:last-child{border-bottom:0;font-weight:700}
+.field{margin:14px 0 0}
+.field>label,.field>span.lbl{display:block;font-weight:500;margin-bottom:6px;font-size:15px}
+.field input,.field textarea{width:100%;padding:12px 14px;border-radius:14px;border:1.5px solid var(--line);background:var(--bg)}
+.field textarea{min-height:72px;resize:vertical}
+.field input[aria-invalid="true"],.field textarea[aria-invalid="true"]{border-color:var(--danger)}
+.err{color:var(--danger);font-size:13px;margin:4px 0 0}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.seg input{position:absolute;opacity:0;pointer-events:none}
+.seg label{display:block;text-align:center;padding:10px;border-radius:14px;border:1.5px solid var(--line);background:var(--bg);cursor:pointer;font-weight:500}
+.seg input:checked+label{border-color:var(--primary);background:var(--primary-soft);color:var(--primary)}
+.seg input:focus-visible+label{outline:3px solid var(--primary);outline-offset:2px}
+.btn{display:flex;justify-content:center;align-items:center;gap:8px;width:100%;padding:14px 18px;border-radius:18px;border:0;font-weight:600;cursor:pointer;text-decoration:none;margin-top:16px}
+.btn.main{background:var(--primary);color:var(--primary-ink)}
+.btn.soft{background:var(--primary-soft);color:var(--primary);margin-top:10px}
+.note{font-size:13px;color:var(--muted);text-align:center;margin:10px 0 0}
+.done{text-align:center;padding:4px 0 0}
+.done svg{width:150px;height:auto}
+.done p{color:var(--muted);margin:6px auto 0;max-width:34ch}
+.preview{white-space:pre-wrap;text-align:left;background:var(--bg);border-radius:16px;padding:12px 14px;font-size:14px;margin:14px 0 0}
+.toast{position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:999px;font-size:14px;z-index:30}
+
+@media (prefers-reduced-motion: reduce){
+  .steam path{animation:none;opacity:.7}
+  .sheet{animation:none}
+}
+</style>
+</head>
+<body>
+<main class="app">
+  <section class="hero" aria-labelledby="shop-name">
+    <h1 id="shop-name" class="display"></h1>
+    <p id="shop-line"></p>
+    <div id="hero-art"></div>
+  </section>
+  <div class="clock" id="clock" role="status"></div>
+
+  <h2 class="display">เมนู</h2>
+  <p class="sub" id="area"></p>
+  <div id="menu"></div>
+
+  <h2 class="display">ของจริงจากครัว</h2>
+  <p class="sub">ภาพจากออเดอร์จริง ทำสดวันต่อวัน</p>
+  <div class="gallery" id="gallery"></div>
+
+  <h2 class="display">รีวิวจากลูกค้า</h2>
+  <div id="reviews"></div>
+
+  <h2 class="display">สั่งยังไง</h2>
+  <ol class="steps">
+    <li><b>1</b>กด + เลือกเมนูและจำนวน</li>
+    <li><b>2</b>กรอกชื่อ เบอร์โทร และที่รับของ</li>
+    <li><b>3</b>กดส่งออเดอร์ แล้วกดส่งข้อความใน LINE</li>
+    <li><b>4</b><span id="step4"></span></li>
+  </ol>
+  <div class="alt" id="alt"></div>
+  <section class="thanks" aria-label="คำขอบคุณจากครอบครัว">
+    <div id="thanks-art"></div>
+    <p class="msg display" id="thanks"></p>
+    <p class="sign">ครอบครัวอิ่มจัง</p>
+  </section>
+  <p class="foot" id="foot"></p>
+</main>
+
+<div class="cartbar" id="cartbar" hidden>
+  <button type="button" id="open-cart"><span><span class="count" id="cart-count">0</span>ดูออเดอร์</span><span id="cart-total">0 บาท</span></button>
+</div>
+
+<div class="overlay" id="overlay" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title" id="sheet"></div>
+</div>
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script>
+/* =========================================================
+   ตั้งค่าร้าน: แก้ตรงนี้ที่เดียว
+   lineOA  = LINE ID ของร้าน เช่น "@khanomjeeb" (ว่างไว้ = ให้ลูกค้าเลือกส่งหาใครก็ได้)
+   ========================================================= */
+const SHOP = {
+  name: 'ครัวอิ่มจัง',
+  line: 'ทำสดวันต่อวัน สั่งก่อน 17:00 รับพรุ่งนี้ 10:00-12:00',
+  area: 'ส่งรอบเช้า 10:00-12:00 ในพื้นที่ที่ร้านกำหนด',
+  thanks: 'ทุกเมนูรังสรรค์โดยครอบครัวอิ่มจัง ขอบพระคุณลูกค้าทุกท่าน หวังว่าท่านจะรับประทานพร้อมความอิ่มใจ',
+  lineOA: '',          // LINE ID ร้าน เช่น '@kruaimjang'
+  phone: '',           // เบอร์โทรร้าน เช่น '0812345678' (ว่างไว้ = ไม่แสดงปุ่มโทร)
+  heroPhoto: 'images/hero.jpg',
+  zones: ['ดอยสะเก็ด', 'ในเมืองเชียงใหม่', 'พื้นที่อื่น (ร้านแจ้งค่าส่งในแชต)'],
+  cutoffHour: 17,
+  deliveryTime: '10:00-12:00'
+};
+const PRODUCTS = [
+  // photo: ใส่ชื่อไฟล์รูปจริง เช่น 'images/big.jpg' (ว่างไว้ = ใช้สติกเกอร์)
+  // soon: true = ยังไม่ขาย แสดงป้าย "เร็วๆ นี้" และกดสั่งไม่ได้
+  { id:'big',   name:'ขนมจีบ กล่องใหญ่', desc:'9 ลูก พร้อมน้ำจิ้มและกระเทียมเจียว', price:50, tag:'ขายดี', art:'big',   photo:'images/big.jpg' },
+  { id:'small', name:'ขนมจีบ กล่องเล็ก', desc:'5 ลูก พร้อมน้ำจิ้มและกระเทียมเจียว', price:30, tag:'',      art:'small', photo:'images/small.jpg' },
+  { id:'bao',   name:'ชุดซาลาเปา',       desc:'กำลังจะมา รอชิมกันเร็วๆ นี้',      price:15, tag:'',      art:'bao',   photo:'', soon:true }
+];
+/* รีวิว: เพิ่มทีละรายการหลังลูกค้าอนุญาต เช่น
+   { name:'คุณมิ้นท์', text:'ไส้แน่น อร่อยมาก', stars:5 }            */
+const REVIEWS = [];
+/* รูปในส่วน "ของจริงจากครัว" */
+const GALLERY = [
+  { src:'images/gallery-1.jpg', alt:'ขนมจีบหลายกล่องเรียงพร้อมส่ง มองจากด้านบน' },
+  { src:'images/gallery-2.jpg', alt:'ขนมจีบในกล่องพร้อมน้ำจิ้ม กระเทียมเจียว และผักสลัด' },
+  { src:'images/gallery-3.jpg', alt:'ขนมจีบโรยกระเทียมเจียวในกล่อง' }
+];
+
+/* ---------------- สติกเกอร์ (วาดด้วย SVG) ---------------- */
+function scallops(){ let d='M26 50'; for(let i=0;i<8;i++) d+=' q4.25 -9 8.5 0'; return d+' Q60 66 26 50 Z'; }
+function face(cy, wink){
+  const eyeL = wink
+    ? `<path d="M44 ${cy} q5 -5 10 0" fill="none" stroke="#3B2B2B" stroke-width="3" stroke-linecap="round"/>`
+    : `<circle cx="49" cy="${cy}" r="4.2" fill="#3B2B2B"/><circle cx="50.4" cy="${cy-1.5}" r="1.4" fill="#fff"/>`;
+  return eyeL +
+    `<circle cx="71" cy="${cy}" r="4.2" fill="#3B2B2B"/><circle cx="72.4" cy="${cy-1.5}" r="1.4" fill="#fff"/>` +
+    `<ellipse cx="41" cy="${cy+7}" rx="5.5" ry="3.2" fill="#FF9EAE" opacity=".85"/>` +
+    `<ellipse cx="79" cy="${cy+7}" rx="5.5" ry="3.2" fill="#FF9EAE" opacity=".85"/>` +
+    `<path d="M55 ${cy+7} Q60 ${cy+12} 65 ${cy+7}" fill="none" stroke="#3B2B2B" stroke-width="2.6" stroke-linecap="round"/>`;
+}
+function shumai(wink){
+  return `<ellipse cx="60" cy="50" rx="34" ry="12" fill="#F4A27A"/>
+  <circle cx="60" cy="44" r="5.5" fill="#FF7A3D"/>
+  <path d="M27 50 C27 50 30 96 60 96 C90 96 93 50 93 50 Z" fill="#F7D774"/>
+  <path d="M40 60 Q42 80 48 92 M80 60 Q78 80 72 92" fill="none" stroke="#E5BC4F" stroke-width="2.4" stroke-linecap="round"/>
+  <path d="${scallops()}" fill="#F9DF86"/>` + face(72, wink);
+}
+function bao(){
+  return `<path d="M20 80 C20 52 40 36 60 36 C80 36 100 52 100 80 C100 93 84 99 60 99 C36 99 20 93 20 80 Z" fill="#FFFDF8" stroke="#EAD9C6" stroke-width="2"/>
+  <path d="M50 42 Q60 32 70 42 M54 44 Q60 37 66 44" fill="none" stroke="#E2CDB3" stroke-width="2.2" stroke-linecap="round"/>
+  <circle cx="60" cy="47" r="3.2" fill="#FF6B6B"/>` + face(74, false);
+}
+const heart = (x,y,s)=>`<path transform="translate(${x} ${y}) scale(${s})" d="M0 -4 C-6 -14 -20 -8 -14 4 L0 16 L14 4 C20 -8 6 -14 0 -4 Z" fill="#FF8FA3"/>`;
+const star  = (x,y,s)=>`<path transform="translate(${x} ${y}) scale(${s})" d="M0,-12 L3.5,-4 L12,-3.7 L5.6,2 L7.4,10.5 L0,6 L-7.4,10.5 L-5.6,2 L-12,-3.7 L-3.5,-4 Z" fill="#FFD15C"/>`;
+const spark = (x,y,s)=>`<path transform="translate(${x} ${y}) scale(${s})" d="M0 -10 Q2 -2 10 0 Q2 2 0 10 Q-2 2 -10 0 Q-2 -2 0 -10 Z" fill="#7FB3FF"/>`;
+
+function art(kind){
+  let g='';
+  if(kind==='big'){
+    g = `<g transform="translate(28 -4) scale(.78)">${shumai(false)}</g><g transform="translate(-6 10) scale(.9)">${shumai(true)}</g>${heart(98,24,.6)}`;
+  } else if(kind==='small'){
+    g = `<g transform="translate(0 4)">${shumai(false)}</g>${star(100,28,.75)}`;
+  } else if(kind==='bao'){
+    g = `<g transform="translate(0 2)">${bao()}</g>${spark(100,26,.9)}`;
+  } else if(kind==='review'){
+    g = `<g transform="translate(4 8) scale(.9)">${shumai(true)}</g>${heart(100,28,.8)}${heart(20,36,.5)}`;
+  } else if(kind==='done'){
+    g = `<g transform="translate(-14 6) scale(.9)">${shumai(true)}</g><g transform="translate(40 14) scale(.78)">${bao()}</g>${heart(24,26,.7)}${star(112,22,.7)}`;
+    return `<svg class="sticker" viewBox="0 0 140 120" aria-hidden="true">${g}</svg>`;
+  }
+  return `<svg class="sticker" viewBox="0 0 120 120" aria-hidden="true">${g}</svg>`;
+}
+function heroArt(){
+  if(SHOP.heroPhoto) return `<div class="hero-photo"><img src="${SHOP.heroPhoto}" alt="ขนมจีบครัวอิ่มจังจัดกล่องพร้อมส่ง"><div class="hero-stickers">${art('done')}</div></div>`;
+  return `<svg viewBox="0 0 320 214" role="img" aria-label="ขนมจีบกับซาลาเปานั่งอยู่ในเข่งนึ่ง">
+  <g class="steam" fill="none" stroke="var(--steam)" stroke-width="6" stroke-linecap="round">
+    <path d="M120 58 q-10 -12 0 -24 q10 -12 0 -24"/>
+    <path d="M160 52 q-10 -12 0 -24 q10 -12 0 -24"/>
+    <path d="M200 58 q-10 -12 0 -24 q10 -12 0 -24"/>
+  </g>
+  <g class="sticker">
+    <ellipse cx="160" cy="120" rx="124" ry="20" fill="#C99A58"/>
+    <g transform="translate(70 30) scale(1.1)">${shumai(false)}</g>
+    <g transform="translate(150 30) scale(1.1)">${bao()}</g>
+    <path d="M36 120 Q36 142 160 142 Q284 142 284 120 L284 176 Q284 196 262 196 L58 196 Q36 196 36 176 Z" fill="#E9C98F"/>
+    <path d="M36 120 Q36 142 160 142 Q284 142 284 120" fill="none" stroke="#F3DCAE" stroke-width="8" stroke-linecap="round"/>
+    <path d="M44 162 H276 M44 180 H276" stroke="#D5AF6E" stroke-width="3" stroke-linecap="round"/>
+    ${heart(34,70,.9)}${star(290,84,.9)}${spark(262,40,1)}
+  </g>
+</svg>`;
+}
+
+/* ---------------- ข้อมูลตะกร้า ---------------- */
+let cart = {};
+let profile = {};
+try { cart = JSON.parse(localStorage.getItem('kj-cart')) || {}; } catch(e){ cart = {}; }
+try { profile = JSON.parse(localStorage.getItem('kj-profile')) || {}; } catch(e){ profile = {}; }
+function save(){ try{ localStorage.setItem('kj-cart', JSON.stringify(cart)); }catch(e){} }
+const money = n => n.toLocaleString('th-TH') + ' บาท';
+const byId = id => PRODUCTS.find(p=>p.id===id);
+function totals(){
+  let count=0, total=0;
+  for(const [id,q] of Object.entries(cart)){ const p=byId(id); if(!p||p.soon||q<=0) continue; count+=q; total+=q*p.price; }
+  return {count,total};
+}
+
+/* ---------------- วันที่และเวลาปิดรับ ---------------- */
+function defaultPickup(){
+  const now=new Date(), d=new Date(now);
+  d.setHours(0,0,0,0);
+  d.setDate(d.getDate() + (now.getHours() < SHOP.cutoffHour ? 1 : 2));
+  return d;
+}
+const ymd = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+const thaiDate = d => d.toLocaleDateString('th-TH',{weekday:'long',day:'numeric',month:'long'});
+const clockIcon = `<svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="12" fill="var(--primary-soft)"/><path d="M14 7v7l5 3" fill="none" stroke="var(--primary)" stroke-width="2.6" stroke-linecap="round"/></svg>`;
+function updateClock(){
+  const now=new Date(), cut=new Date(now); cut.setHours(SHOP.cutoffHour,0,0,0);
+  const el=document.getElementById('clock'), diff=cut-now;
+  if(diff>0){
+    const h=Math.floor(diff/3.6e6), m=Math.floor((diff%3.6e6)/6e4);
+    el.className='clock';
+    el.innerHTML = `${clockIcon}<span>สั่งรอบพรุ่งนี้ได้อีก ${h>0?h+' ชม. ':''}${m} นาที</span>`;
+  } else {
+    el.className='clock closed';
+    el.innerHTML = `${clockIcon}<span>ปิดรับรอบพรุ่งนี้แล้ว สั่งตอนนี้ได้รับ${thaiDate(defaultPickup())}</span>`;
+  }
+}
+
+/* ---------------- วาดเมนู ---------------- */
+function control(p){
+  if(p.soon) return `<span class="soon">เร็วๆ นี้</span>`;
+  const q=cart[p.id]||0;
+  if(!q) return `<button class="add" data-act="inc" data-id="${p.id}" aria-label="เพิ่ม ${p.name}">+</button>`;
+  return `<div class="stepper"><button data-act="dec" data-id="${p.id}" aria-label="ลด ${p.name}">−</button><output aria-live="polite">${q}</output><button data-act="inc" data-id="${p.id}" aria-label="เพิ่ม ${p.name}">+</button></div>`;
+}
+function renderMenu(){
+  document.getElementById('menu').innerHTML = PRODUCTS.map(p=>`
+    <article class="item${p.soon?' is-soon':''}">
+      <div class="pic">${p.photo?`<img src="${p.photo}" alt="${p.name}" loading="lazy"><span class="badge">${art(p.art)}</span>`:art(p.art)}</div>
+      <div>
+        <div class="name">${p.name}${p.tag?`<span class="tag">${p.tag}</span>`:''}</div>
+        <div class="desc">${p.desc}</div>
+        <div class="price display">${money(p.price)}</div>
+      </div>
+      <div id="ctl-${p.id}">${control(p)}</div>
+    </article>`).join('');
+}
+function refresh(){
+  PRODUCTS.forEach(p=>{ const c=document.getElementById('ctl-'+p.id); if(c) c.innerHTML=control(p); });
+  const {count,total}=totals();
+  document.getElementById('cartbar').hidden = count===0;
+  document.getElementById('cart-count').textContent = count;
+  document.getElementById('cart-total').textContent = money(total);
+  save();
+}
+function change(id,delta){
+  cart[id]=Math.max(0,(cart[id]||0)+delta);
+  if(!cart[id]) delete cart[id];
+  refresh();
+  if(!document.getElementById('overlay').hidden) renderLines();
+}
+document.addEventListener('click',e=>{
+  const b=e.target.closest('[data-act]'); if(!b) return;
+  if(b.dataset.act==='inc') change(b.dataset.id,1);
+  if(b.dataset.act==='dec') change(b.dataset.id,-1);
+});
+
+/* ---------------- หน้าต่างสั่งซื้อ ---------------- */
+let lastFocus=null, lastMessage='', lastUrl='', lastOrderNo='';
+function makeOrderNo(){
+  const d=new Date();
+  return 'IJ'+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0')+'-'+String(Math.floor(Math.random()*900)+100);
+}
+function linesHTML(){
+  const rows=PRODUCTS.filter(p=>cart[p.id]&&!p.soon).map(p=>`<li><span>${p.name} × ${cart[p.id]}</span><span>${money(cart[p.id]*p.price)}</span></li>`).join('');
+  return rows + `<li><span>รวม</span><span>${money(totals().total)}</span></li>`;
+}
+function renderLines(){
+  const ul=document.getElementById('lines'); if(!ul) return;
+  if(totals().count===0){ closeSheet(); return; }
+  ul.innerHTML=linesHTML();
+}
+function openSheet(){
+  lastFocus=document.activeElement;
+  const d=defaultPickup();
+  document.getElementById('sheet').innerHTML = `
+    <div class="grab"></div>
+    <div class="sheet-head"><h3 id="sheet-title" class="display">ออเดอร์ของคุณ</h3><button class="close" type="button" id="close" aria-label="ปิด">×</button></div>
+    <ul class="lines" id="lines">${linesHTML()}</ul>
+    <form id="order" novalidate>
+      <div class="field"><label for="f-name">ชื่อ</label><input id="f-name" autocomplete="name" value="${esc(profile.name||'')}"><p class="err" id="e-name" hidden></p></div>
+      <div class="field"><label for="f-phone">เบอร์โทร</label><input id="f-phone" type="tel" inputmode="numeric" autocomplete="tel" value="${esc(profile.phone||'')}"><p class="err" id="e-phone" hidden></p></div>
+      <div class="field"><span class="lbl" id="l-mode">รับของแบบไหน</span>
+        <div class="seg" role="radiogroup" aria-labelledby="l-mode">
+          <input type="radio" name="mode" id="m-deliver" value="deliver" checked><label for="m-deliver">ส่งถึงที่</label>
+          <input type="radio" name="mode" id="m-pickup" value="pickup"><label for="m-pickup">รับที่จุดนัด</label>
+        </div>
+      </div>
+      <div class="field" id="zone-field"><label for="f-zone">โซนจัดส่ง</label><select id="f-zone"><option value="">เลือกโซน</option>${SHOP.zones.map(z=>`<option${profile.zone===z?' selected':''}>${esc(z)}</option>`).join('')}</select><p class="err" id="e-zone" hidden></p></div>
+      <div class="field"><label for="f-place" id="l-place">ที่อยู่สำหรับส่ง</label><textarea id="f-place" autocomplete="street-address">${esc(profile.place||'')}</textarea><p class="err" id="e-place" hidden></p></div>
+      <div class="field"><label for="f-date">วันที่รับ (ช่วง ${SHOP.deliveryTime})</label><input id="f-date" type="date" min="${ymd(d)}" value="${ymd(d)}"><p class="err" id="e-date" hidden></p></div>
+      <div class="field"><label for="f-note">หมายเหตุ (ถ้ามี)</label><input id="f-note" placeholder="เช่น ขอน้ำจิ้มเพิ่ม"></div>
+      <button class="btn main" type="submit">ส่งออเดอร์ทาง LINE</button>
+      <p class="note">ระบบจะเปิด LINE พร้อมข้อความออเดอร์ ให้กดส่งในแชตเพื่อยืนยัน</p>
+    </form>`;
+  document.getElementById('overlay').hidden=false;
+  document.getElementById('close').onclick=closeSheet;
+  document.querySelectorAll('input[name="mode"]').forEach(r=>r.onchange=()=>{
+    const pick=document.getElementById('m-pickup').checked;
+    document.getElementById('zone-field').hidden = pick;
+    document.getElementById('l-place').textContent = pick ? 'จุดนัดรับ' : 'ที่อยู่สำหรับส่ง';
+    document.getElementById('f-place').placeholder = pick ? 'เช่น หน้าออฟฟิศ หรือจุดนัดรับที่ร้านแจ้ง' : '';
+  });
+  document.getElementById('order').onsubmit=submitOrder;
+  document.getElementById('f-name').focus();
+}
+function closeSheet(){
+  document.getElementById('overlay').hidden=true;
+  document.getElementById('sheet').innerHTML='';
+  if(lastFocus) lastFocus.focus();
+}
+document.getElementById('open-cart').onclick=openSheet;
+document.getElementById('overlay').addEventListener('click',e=>{ if(e.target.id==='overlay') closeSheet(); });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape' && !document.getElementById('overlay').hidden) closeSheet(); });
+
+function esc(s){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function setErr(id,msg){
+  const e=document.getElementById('e-'+id), f=document.getElementById('f-'+id);
+  if(msg){ e.textContent=msg; e.hidden=false; f.setAttribute('aria-invalid','true'); }
+  else { e.hidden=true; f.removeAttribute('aria-invalid'); }
+  return !msg;
+}
+function submitOrder(ev){
+  ev.preventDefault();
+  const name=document.getElementById('f-name').value.trim();
+  const phone=document.getElementById('f-phone').value.replace(/[^0-9]/g,'');
+  const pick=document.getElementById('m-pickup').checked;
+  const place=document.getElementById('f-place').value.trim();
+  const zone=document.getElementById('f-zone').value;
+  const dateVal=document.getElementById('f-date').value;
+  const note=document.getElementById('f-note').value.trim();
+  let ok=true;
+  ok = setErr('name', name ? '' : 'ใส่ชื่อผู้สั่ง') && ok;
+  ok = setErr('phone', /^0\d{8,9}$/.test(phone) ? '' : 'ใส่เบอร์โทร 9-10 หลัก ขึ้นต้นด้วย 0') && ok;
+  ok = setErr('place', place ? '' : (pick ? 'ใส่จุดนัดรับ' : 'ใส่ที่อยู่สำหรับส่ง')) && ok;
+  ok = setErr('zone', pick || zone ? '' : 'เลือกโซนจัดส่ง') && ok;
+  ok = setErr('date', dateVal && dateVal >= ymd(defaultPickup()) ? '' : 'เลือกวันที่รับตั้งแต่ ' + thaiDate(defaultPickup()) + ' เป็นต้นไป') && ok;
+  if(!ok){ const first=document.querySelector('[aria-invalid="true"]'); if(first) first.focus(); return; }
+
+  profile={name,phone,place,zone}; try{ localStorage.setItem('kj-profile', JSON.stringify(profile)); }catch(e){}
+  const items=PRODUCTS.filter(p=>cart[p.id]&&!p.soon).map(p=>`- ${p.name} × ${cart[p.id]} = ${money(cart[p.id]*p.price)}`).join('\n');
+  lastOrderNo = makeOrderNo();
+  lastMessage =
+`สั่ง${SHOP.name} #${lastOrderNo}
+ชื่อ: ${name}
+โทร: ${phone}
+รับวัน${thaiDate(new Date(dateVal+'T00:00'))} ช่วง ${SHOP.deliveryTime}
+${pick?'รับที่จุดนัด: '+place:'ส่งถึงที่ ('+zone+'): '+place}
+รายการ:
+${items}
+รวม ${money(totals().total)}${note?'\nหมายเหตุ: '+note:''}`;
+  lastUrl = lineLink(lastMessage);
+  window.open(lastUrl,'_blank','noopener');
+  showDone();
+}
+function showDone(){
+  document.getElementById('sheet').innerHTML = `
+    <div class="grab"></div>
+    <div class="done">
+      ${art('done')}
+      <h3 id="sheet-title" class="display">เกือบเสร็จแล้ว</h3>
+      <p>กดส่งข้อความใน LINE เพื่อยืนยันออเดอร์ ร้านจะแจ้งใน LINE ตอนออกส่ง ถ้า LINE ไม่เปิด ให้กดปุ่มด้านล่าง</p>
+      <p class="ono">เลขออเดอร์ <b>#${lastOrderNo}</b></p>
+      <div class="preview" id="preview"></div>
+      <a class="btn main" href="${esc(lastUrl)}" target="_blank" rel="noopener">เปิด LINE อีกครั้ง</a>
+      <button class="btn soft" type="button" id="copy">คัดลอกข้อความออเดอร์</button>
+      <button class="btn soft" type="button" id="again">เริ่มออเดอร์ใหม่</button>
+    </div>`;
+  document.getElementById('preview').textContent=lastMessage;
+  document.getElementById('copy').onclick=copyMessage;
+  document.getElementById('again').onclick=()=>{ cart={}; refresh(); closeSheet(); window.scrollTo({top:0}); };
+  document.getElementById('copy').focus();
+}
+async function copyMessage(){
+  let done=false;
+  try{ await navigator.clipboard.writeText(lastMessage); done=true; }catch(e){
+    try{ const t=document.createElement('textarea'); t.value=lastMessage; document.body.appendChild(t); t.select(); done=document.execCommand('copy'); t.remove(); }catch(e2){}
+  }
+  toast(done ? 'คัดลอกข้อความแล้ว' : 'คัดลอกไม่ได้ กดค้างที่ข้อความด้านบนเพื่อคัดลอก');
+}
+function toast(msg){
+  const t=document.getElementById('toast'); t.textContent=msg; t.hidden=false;
+  clearTimeout(toast._t); toast._t=setTimeout(()=>t.hidden=true,2200);
+}
+
+/* ---------------- รีวิว ---------------- */
+function lineLink(text){
+  return SHOP.lineOA
+    ? `https://line.me/R/oaMessage/${encodeURIComponent(SHOP.lineOA)}/?${encodeURIComponent(text)}`
+    : `https://line.me/R/msg/text/?${encodeURIComponent(text)}`;
+}
+function renderReviews(){
+  const box=document.getElementById('reviews');
+  if(REVIEWS.length){
+    box.className='reviews';
+    box.innerHTML=REVIEWS.map(r=>`<article class="review">
+      <div class="stars" aria-label="${r.stars} ดาว">${'★'.repeat(r.stars)}${'☆'.repeat(5-r.stars)}</div>
+      <p>${esc(r.text)}</p><div class="who">${esc(r.name)}</div></article>`).join('');
+  } else {
+    box.className='empty';
+    box.innerHTML=`${art('review')}<p>ยังไม่มีรีวิว ชิมแล้วส่งรีวิวหรือรูปมาทาง LINE ได้เลย ร้านจะขออนุญาตก่อนนำมาแสดง</p>
+      <a class="btn soft" href="${esc(lineLink('รีวิว'+SHOP.name+': '))}" target="_blank" rel="noopener">ส่งรีวิวทาง LINE</a>`;
+  }
+}
+
+function renderGallery(){
+  document.getElementById('gallery').innerHTML = GALLERY.map(g=>`<figure><img src="${g.src}" alt="${esc(g.alt)}" loading="lazy"></figure>`).join('');
+}
+function renderAlt(){
+  const btns=[];
+  if(SHOP.phone) btns.push(`<a class="btn soft" href="tel:${esc(SHOP.phone)}">โทรสั่ง</a>`);
+  btns.push(`<a class="btn soft" href="${esc(lineLink('อยากสั่ง'+SHOP.name))}" target="_blank" rel="noopener">ทักแชตสั่ง</a>`);
+  document.getElementById('alt').innerHTML = `<b>ไม่สะดวกกดสั่งในเว็บ?</b><p>โทรหรือทักแชตบอกเมนูและจำนวนได้ตามเดิม</p><div class="row">${btns.join('')}</div>`;
+}
+
+/* ---------------- เริ่มต้น ---------------- */
+PRODUCTS.forEach(p=>{ if(p.soon) delete cart[p.id]; });
+document.getElementById('shop-name').textContent=SHOP.name;
+document.getElementById('shop-line').textContent=SHOP.line;
+document.getElementById('area').textContent=SHOP.area;
+document.getElementById('foot').textContent=`${SHOP.name} ทำสดวันต่อวัน`;
+document.getElementById('hero-art').innerHTML=heroArt();
+document.getElementById('step4').textContent=`ร้านแจ้งใน LINE ตอนออกส่ง ช่วง ${SHOP.deliveryTime}`;
+document.getElementById('thanks').textContent=SHOP.thanks;
+document.getElementById('thanks-art').innerHTML=art('done');
+renderMenu(); renderGallery(); renderAlt(); renderReviews(); refresh(); updateClock(); setInterval(updateClock,30000);
+</script>
+</body>
+</html>
